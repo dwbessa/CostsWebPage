@@ -1,15 +1,11 @@
-body {
-  padding: 50px;
-  padding-bottom: 500px;
-  background-color: #efefef;
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
 }
 
-h1 {
-  color: #abcbca;
+html, body, #root {
+  background-color: #EFEFEF;
+  height: 100%;
 }
-
-p {
-  background-color: rgb(170, 166, 170);
-  padding: 10px;
-}
-
