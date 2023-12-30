@@ -7,7 +7,7 @@
         "id": "1",
         "name": "Infra"
       },
-      "cost": 3058,
+      "cost": 3060,
       "services": [
         {
           "name": "Dinheiro",
@@ -16,31 +16,7 @@
           "id": "f8ebf861-5e82-4787-b39d-cca8626ad7e8"
         },
         {
-          "name": "Dinheiro",
-          "cost": "100",
-          "description": "Precisa né?",
-          "id": "f8ebf861-5e82-4787-b39d-cca8626ad7e8"
-        },
-        {
-          "name": "Dinheiro",
-          "cost": "100",
-          "description": "Precisa né?",
-          "id": "7770ba54-4a44-469c-9e13-820e084a241e"
-        },
-        {
-          "name": "Dinheiro",
-          "cost": "100",
-          "description": "Precisa né?",
-          "id": "7770ba54-4a44-469c-9e13-820e084a241e"
-        },
-        {
-          "name": "Dinheiro",
-          "cost": "100",
-          "description": "Precisa né?",
-          "id": "f969da79-28e2-4a28-ad49-614831d256bd"
-        },
-        {
-          "name": "danielbessa01@gmail.com",
+          "name": "danielbessa01@",
           "cost": "1221",
           "description": "teste",
           "id": "1d5293ca-a034-47fa-9e66-76753f194263"
@@ -62,6 +38,12 @@
           "cost": "58",
           "description": "demais",
           "id": "a45f8eee-d01b-4b31-9c9e-d304897683bb"
+        },
+        {
+          "name": "212",
+          "cost": "2",
+          "description": "2121",
+          "id": "71ce9214-9def-4d8e-82e0-fb70f4389847"
         }
       ],
       "id": 1
