@@ -10,15 +10,17 @@ function ProjectForm ({ handleSubmit, btnText, projectData }) {
 
   const [categories, setCategories] = useState([])
   const [project, setProject] = useState(projectData || [])
+  const [error, setError] = useState('') // Added for error handling
 
   useEffect(() => {
+    // Debug API URL
+    console.log("API URL:", process.env.REACT_APP_API_URL)
+    
     fetch(`${process.env.REACT_APP_API_URL}/categories`, {
       method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      credentials: 'same-origin'
+        'Content-Type': 'application/json'
+      }
     })
       .then((resp) => {
         if (!resp.ok) {
@@ -27,16 +29,20 @@ function ProjectForm ({ handleSubmit, btnText, projectData }) {
         return resp.json();
       })
       .then((data) => {
+        console.log("Categories loaded:", data) // Debug categories data
         setCategories(data)
       })
       .catch((err) => {
         console.error("Error fetching categories:", err)
+        setError('Failed to load categories. Please check server connection.')
       })
   }, [])
 
   const submit = (e) => {
     e.preventDefault()
-    handleSubmit(project)
+    // Clone project to avoid direct mutation
+    const projectToSubmit = {...project}
+    handleSubmit(projectToSubmit)
   }
 
   function handleChange(e) {
@@ -49,6 +55,10 @@ function ProjectForm ({ handleSubmit, btnText, projectData }) {
   }
 
   function handleCategory(e) {
+    // Debug the selection
+    console.log("Category selected:", e.target.value)
+    console.log("Option text:", e.target.options[e.target.selectedIndex].text)
+    
     setProject({ 
       ...project, 
       category: {
@@ -60,6 +70,8 @@ function ProjectForm ({ handleSubmit, btnText, projectData }) {
 
   return (
     <form onSubmit={submit} className={styles.form}>
+      {error && <p style={{color: 'red'}}>{error}</p>}
+      
       <Input 
         type="text"
         text="Nome do Projeto"
@@ -84,7 +96,7 @@ function ProjectForm ({ handleSubmit, btnText, projectData }) {
         value={project.category ? project.category.id : ''} 
       />
       <SubmitButton text={btnText}/>
-  </form>
+    </form>
   )
 }
 

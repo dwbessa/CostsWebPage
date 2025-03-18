@@ -20,9 +20,10 @@ server.use((req, res, next) => {
 
 // Setup CORS properly
 server.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // More specific for security
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -48,7 +49,7 @@ server.use((req, res, next) => {
     // For absolute URLs, only allow those to our own domains
     try {
       const parsedUrl = new URL(url);
-      const allowedHosts = ['localhost:3000', 'localhost:5000']; // Add your allowed domains
+      const allowedHosts = ['localhost:3000', 'localhost:5000', 'localhost:5001']; // Add 5001
       
       if (!allowedHosts.includes(parsedUrl.host)) {
         console.error(`Blocked redirect to disallowed host: ${parsedUrl.host}`);
@@ -166,6 +167,7 @@ server.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
-server.listen(5000, () => {
-  console.log('JSON Server is running with enhanced security on port 5000');
+const PORT = process.env.PORT || 5001;  // Use 5001 instead of 5000
+server.listen(PORT, () => {
+  console.log(`JSON Server is running with enhanced security on port ${PORT}`);
 });
