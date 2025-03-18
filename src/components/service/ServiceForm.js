@@ -16,7 +16,17 @@ function ServiceForm({ handleSubmit, btnText, projectData }) {
   }
 
   function handleChange(e) {
-    setService({ ...service, [e.target.name]: e.target.value })
+    // Basic input validation
+    const value = e.target.value;
+    const name = e.target.name;
+    
+    // Prevent script injection for text fields
+    if (name === 'name' || name === 'description') {
+      const sanitizedValue = value.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      setService({ ...service, [name]: sanitizedValue });
+    } else {
+      setService({ ...service, [name]: value });
+    }
   }
 
   return (

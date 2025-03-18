@@ -1,4 +1,4 @@
-import { parse, v4 as uuidv4 } from "uuid"
+import { v4 as uuidv4 } from "uuid"
 
 import styles from "./Project.module.css"
 
@@ -12,9 +12,8 @@ import ServiceForm from "../service/ServiceForm"
 import ServiceCard from "../service/ServiceCard"
 import Message from "../layout/Message"
 
-function Project () {
-  let { id } = useParams()
-  console.log(id)
+function Project() {
+  const { id } = useParams()
 
   const [project, setProject] = useState([])
   const [services, setServices] = useState([])
@@ -23,51 +22,75 @@ function Project () {
   const [message, setMessage] = useState()
   const [type, setType] = useState()
 
-  useEffect (() => {
+  useEffect(() => {
     setTimeout(() => {
-      fetch(`http://localhost:5000/projects/${id}`, {
+      fetch(`${process.env.REACT_APP_API_URL}/projects/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
         },
+        credentials: 'same-origin'
       })
-        .then(resp => resp.json())
+        .then(resp => {
+          if (!resp.ok) {
+            throw new Error('Failed to fetch project');
+          }
+          return resp.json();
+        })
         .then((data) => {
           setProject(data)
           setServices(data.services)
         })
-        .catch((err) => console.log)
+        .catch((err) => {
+          console.error("Error fetching project:", err);
+          setMessage('Erro ao carregar projeto!');
+          setType('error');
+        });
     }, 300)
   }, [id])
   
   function editPost(project) {
-    //budget validation
     setMessage('')
+    // Budget validation
     if (project.budget < project.cost) {
       setMessage('O orçamento não pode ser menor que o custo do projeto!')
       setType('error')
-      return (false)
+      return false
     }
-    fetch(`http://localhost:5000/projects/${project.id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(project),
-  })
-  .then(resp => resp.json())
-  .then((data) => {
-    setProject(data)
-    setShowProjectForm(false)
-    setMessage('Projeto Atualizado!')
-    setType('success')
-  })
-  .catch(err => console.log(err))
+
+    fetch(`${process.env.REACT_APP_API_URL}/projects/${project.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(project),
+    })
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error('Failed to update project');
+      }
+      return resp.json();
+    })
+    .then((data) => {
+      setProject(data)
+      setShowProjectForm(false)
+      setMessage('Projeto Atualizado!')
+      setType('success')
+    })
+    .catch(err => {
+      console.error("Error updating project:", err);
+      setMessage('Erro ao atualizar projeto!');
+      setType('error');
+    });
   }
 
-  function createService (project) {
+  function createService(project) {
     setMessage('')
     setType('')
+    
     const lastService = project.services[project.services.length - 1]
 
     lastService.id = uuidv4()
@@ -84,52 +107,78 @@ function Project () {
 
     project.cost = newCost
 
-    fetch(`http://localhost:5000/projects/${project.id}`,{
+    fetch(`${process.env.REACT_APP_API_URL}/projects/${project.id}`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'same-origin',
       body: JSON.stringify(project)
     })
-      .then((resp) => resp.json())
+      .then((resp) => {
+        if (!resp.ok) {
+          throw new Error('Failed to add service');
+        }
+        return resp.json();
+      })
       .then((data) => {
-        console.log(data)
-        setShowServiceForm(!showServiceForm)
+        setServices(data.services)
+        setProject(data)
+        setShowServiceForm(false)
         setMessage('Serviço Adicionado!')
         setType('success')
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.error("Error adding service:", err);
+        setMessage('Erro ao adicionar serviço!');
+        setType('error');
+      });
   }
 
-  function removeService (id, cost) {
-    const serviceUpdate = project.services.filter(
+  function removeService(id, cost) {
+    // FIX: Create a new object instead of modifying the existing one
+    const projectUpdated = {...project}
+    
+    projectUpdated.services = project.services.filter(
       (service) => service.id !== id
     )
-
-    const projectUpdated = project
-
-    projectUpdated.services = servicesUpdated
+    
     projectUpdated.cost = parseFloat(projectUpdated.cost) - parseFloat(cost)
-    fetch(`http://localhost:5000/projects/${projectUpdated.id}`, {
+    
+    fetch(`${process.env.REACT_APP_API_URL}/projects/${projectUpdated.id}`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'same-origin',
       body: JSON.stringify(projectUpdated)
-    }).then((resp) => resp.json())
-    .then((data) => {
-      setProject(projectUpdated)
-      setServices(servicesUpdated)
-      setMessage('Serviço removido com sucesso!')
     })
-    .catch(err => console.log(err))
+    .then((resp) => {
+      if (!resp.ok) {
+        throw new Error('Failed to remove service');
+      }
+      return resp.json();
+    })
+    .then((data) => {
+      setProject(data)
+      setServices(data.services)
+      setMessage('Serviço removido com sucesso!')
+      setType('success')
+    })
+    .catch(err => {
+      console.error("Error removing service:", err);
+      setMessage('Erro ao remover serviço!');
+      setType('error');
+    });
   }
 
-  function toggleProjectForm (){
+  function toggleProjectForm() {
     setShowProjectForm(!showProjectForm)
   }
 
-  function toggleServiceForm (){
+  function toggleServiceForm() {
     setShowServiceForm(!showServiceForm)
   }
 
@@ -200,7 +249,7 @@ function Project () {
             </Container>
           </Container>
         </div>
-      ): (
+      ) : (
         <LoadingComp />
       )}
     </>

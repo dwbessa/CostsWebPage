@@ -12,27 +12,40 @@ function ProjectForm ({ handleSubmit, btnText, projectData }) {
   const [project, setProject] = useState(projectData || [])
 
   useEffect(() => {
-    fetch("http://localhost:5000/categories", {
+    fetch(`${process.env.REACT_APP_API_URL}/categories`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
+      credentials: 'same-origin'
     })
-      .then((resp) => resp.json())
+      .then((resp) => {
+        if (!resp.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        return resp.json();
+      })
       .then((data) => {
         setCategories(data)
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.error("Error fetching categories:", err)
+      })
   }, [])
 
   const submit = (e) => {
     e.preventDefault()
-    //console.log(project)
     handleSubmit(project)
   }
 
   function handleChange(e) {
-    setProject({ ...project, [e.target.name]: e.target.value })
+    // Sanitize inputs to prevent XSS
+    const value = e.target.name === 'name' ? 
+                  e.target.value.replace(/<[^>]*>?/gm, '') : 
+                  e.target.value;
+                  
+    setProject({ ...project, [e.target.name]: value })
   }
 
   function handleCategory(e) {

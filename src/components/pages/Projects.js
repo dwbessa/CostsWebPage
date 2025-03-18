@@ -13,6 +13,7 @@ function Projects() {
   const [projects, setProjects] = useState([])
   const [removeLoading, setRemoveLoading] = useState(false)
   const [projectMessage, setProjectMessage] = useState('')
+  const [type, setType] = useState('success')
 
   const location = useLocation()
   let message = ''
@@ -20,33 +21,58 @@ function Projects() {
     message = location.state.message
   }
 
-  useEffect (() => {
+  useEffect(() => {
     setTimeout(() => {
-        fetch('http://localhost:5000/projects', {
+      fetch(`${process.env.REACT_APP_API_URL}/projects`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
         },
-      }).then(resp => resp.json())
-      .then(data =>{
-        console.log(data)
+        credentials: 'same-origin'
+      }).then(resp => {
+        if (!resp.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return resp.json();
+      })
+      .then(data => {
         setProjects(data)
         setRemoveLoading(true)
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        console.error("Error fetching projects:", err)
+        setProjectMessage('Erro ao carregar projetos!')
+        setType('error')
+        setRemoveLoading(true)
+      })
     }, 300)
   }, [])
 
-  function removeProject (id) {
-    fetch(`http://localhost:5000/projects/${id}`,{
+  function removeProject(id) {
+    fetch(`${process.env.REACT_APP_API_URL}/projects/${id}`, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
       },
-    }).then(resp => resp.json())
-    .then (data => {
+      credentials: 'same-origin'
+    })
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return resp.json();
+    })
+    .then(data => {
       setProjects(projects.filter((project) => project.id !== id))
       setProjectMessage('Projeto removido com sucesso!')
+      setType('success')
+    })
+    .catch((err) => {
+      console.error('Error:', err);
+      setProjectMessage('Erro ao remover projeto!')
+      setType('error')
     })
   }
 
@@ -57,7 +83,7 @@ function Projects() {
         <LinkButton to="/newproject" text="Criar Projeto" />
       </div>
       {message && <Message type="success" msg={message} />}
-      {projectMessage && <Message type="error" msg={projectMessage} />}
+      {projectMessage && <Message type={type} msg={projectMessage} />}
       <Container customClass="start">
         {projects.length > 0 &&
           projects.map((project) => (
