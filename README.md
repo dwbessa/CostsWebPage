@@ -1,3 +1,7 @@
+![Home Page](https://github.com/dwbessa/CostsWebPage/blob/main/readme-img/home.png)
+
+![Crud Page](https://github.com/dwbessa/CostsWebPage/blob/main/readme-img/crud.png)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
